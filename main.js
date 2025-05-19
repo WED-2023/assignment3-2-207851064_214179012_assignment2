@@ -96,7 +96,8 @@ app.use(function (err, req, res, next) {
 
 
 const server = app.listen(port, () => {
-  console.log(`Server listen on port ${port}`);
+  console.log(`Server running on http://localhost:${port}`);
+  // console.log(`Server listen on port ${port}`);
 });
 
 process.on("SIGINT", function () {

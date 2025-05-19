@@ -89,13 +89,18 @@ async function getRandomRecipes(number) {
     });
 }
 
-// internal services - using the db
-async function postNewRecipe(params) {}
+// // internal services - using the db
+// async function postNewRecipe(params) {}
+module.exports = {
+  getRecipeDetails,
+  getRecipesByQuery,
+  getRandomRecipes
+};
 
 
 
 
-exports.getRecipeDetails = getRecipeDetails;
+// exports.getRecipeDetails = getRecipeDetails;
 
 
 
