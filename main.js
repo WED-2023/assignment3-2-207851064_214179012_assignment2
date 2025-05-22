@@ -96,6 +96,10 @@ app.use(function (err, req, res, next) {
 
 
 const server = app.listen(port, () => {
+  DButils
+    .startTables()
+    .then(() => console.log("DB tables created"))
+    .catch((err) => console.log("DB tables already exist", err));
   console.log(`Server running on http://localhost:${port}`);
   // console.log(`Server listen on port ${port}`);
 });
