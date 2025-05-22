@@ -52,6 +52,22 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+/**
+ * This path gets last 3 recipes viewed by the logged-in user
+ */
+router.get('/history', async (req,res,next) => {
+  try{
+    const user_id = req.session.user_id;
+    const recipes_id = await user_utils.getHistory(user_id);
+    let recipes_id_array = [];
+    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+    res.status(200).send(results);
+  } catch(error){
+    next(error); 
+  }
+});
+
 
 
 

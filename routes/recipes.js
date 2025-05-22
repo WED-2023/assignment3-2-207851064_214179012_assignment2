@@ -42,6 +42,18 @@ router.get("/:recipeId", async (req, res, next) => {
   }
 });
 
+/**
+ * This path create new recipe in the DB if not exist
+ */
+router.post("/", async (req, res, next) => {
+  try {
+    const recipe = await recipes_utils.createRecipe(req.body);
+    res.status(201).send("recipe created successfully");
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 
 module.exports = router;

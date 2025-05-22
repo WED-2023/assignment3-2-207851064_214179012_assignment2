@@ -89,12 +89,25 @@ async function getRandomRecipes(number) {
     });
 }
 
-// // internal services - using the db
-// async function postNewRecipe(params) {}
+// internal services - using the db
+async function createRecipe(recipe) {
+    const { id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree } = recipe;
+    // Check if the recipe already exists in the database
+    const existingRecipe = await DButils.execQuery(`SELECT * FROM Recipes WHERE id = ${id}`);
+    if (existingRecipe.length > 0) {
+        throw new Error("Recipe already exists in the database");
+    }
+    const query = `INSERT INTO Recipes (id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree) 
+                   VALUES (${id}, '${title}', ${readyInMinutes}, '${image}', ${popularity}, ${vegan}, ${vegetarian}, ${glutenFree})`;
+    await DButils.execQuery(query);
+}
+
+
 module.exports = {
   getRecipeDetails,
   getRecipesByQuery,
-  getRandomRecipes
+  getRandomRecipes,
+    createRecipe,
 };
 
 

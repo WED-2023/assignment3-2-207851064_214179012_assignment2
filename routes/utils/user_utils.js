@@ -9,6 +9,11 @@ async function getFavoriteRecipes(user_id){
     return recipes_id;
 }
 
+async function getHistory(user_id){
+    const recipes_id = await DButils.execQuery(`select recipe_id from lastSearches where user_id='${user_id}'`);
+    return recipes_id;
+}
+
 
 
 exports.markAsFavorite = markAsFavorite;
