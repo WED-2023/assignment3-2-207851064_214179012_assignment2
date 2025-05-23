@@ -58,13 +58,16 @@ router.get('/favorites', async (req,res,next) => {
 router.get('/history', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
-    const recipes_id = await user_utils.getHistory(user_id);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
-  } catch(error){
-    next(error); 
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    const rows = await user_utils.getHistory(user_id);
+    const recipeIds = rows.map(r => r.recipe_id);
+    const previews  = await recipes_utils.getRecipesPreview(recipeIds);
+    res.status(200).json(previews);
+  } catch (err) {
+    next(err);
   }
 });
 
