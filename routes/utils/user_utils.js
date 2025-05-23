@@ -14,7 +14,15 @@ async function getHistory(user_id){
     return recipes_id;
 }
 
+async function addToHistory(user_id, recipe_id){
+    await DButils.execQuery(`insert into lastSearches values ('${user_id}',${recipe_id})`);
+}
 
 
-exports.markAsFavorite = markAsFavorite;
-exports.getFavoriteRecipes = getFavoriteRecipes;
+
+exports = {
+    markAsFavorite,
+    getFavoriteRecipes,
+    getHistory,
+    addToHistory
+}
