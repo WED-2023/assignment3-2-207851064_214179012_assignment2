@@ -18,6 +18,11 @@ router.post("/Register", async (req, res, next) => {
       email: req.body.email,
       profilePic: req.body.profilePic
     }
+    let id= await DButils.execQuery("SELECT MAX(user_id) as max_id FROM users");
+    if (id[0].max_id === null) {
+      id[0].max_id = 0; // if no users exist, start from 0
+    }
+    user_details.user_id = id[0].max_id + 1; // increment the max id for the new user
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
 
@@ -31,7 +36,7 @@ router.post("/Register", async (req, res, next) => {
     );
 
     await DButils.execQuery(
-      `INSERT INTO users (username, firstname, lastname, country, password, email, profilePic) VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
+      `INSERT INTO users (user_id, username, firstname, lastname, country, password, email, profilePic) VALUES ('${user_details.user_id}', '${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
       '${user_details.country}', '${hash_password}', '${user_details.email}', '${user_details.profilePic}')`
     );
     res.status(201).send({ message: "user created", success: true });
@@ -59,8 +64,8 @@ router.post("/Login", async (req, res, next) => {
     }
 
     // Set cookie
-    req.session.user_id = user.user_id;
-    console.log("session user_id login: " + req.session.user_id);
+    req.session.user_id  = user.user_id;
+    console.log("session user_id login: " + req.session.user_id );
 
     // return cookie
     res.status(200).send({ message: "login succeeded " , success: true });

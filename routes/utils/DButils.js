@@ -23,10 +23,10 @@ exports.startTables = async function () {
     const connection = await MySql.connection();
     try {
         await connection.query("START TRANSACTION");
-        await connection.query("CREATE TABLE IF NOT EXISTS Users (user_id VARCHAR(255) PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255), email VARCHAR(255), password VARCHAR(255))");
-        await connection.query("CREATE TABLE IF NOT EXISTS FavoriteRecipes (user_id VARCHAR(255), recipe_id INT, PRIMARY KEY (user_id, recipe_id))");
+        await connection.query("CREATE TABLE IF NOT EXISTS Users (user_id INT, username VARCHAR(50), firstname VARCHAR(100), lastname VARCHAR(100), country VARCHAR(100), password VARCHAR(255), email VARCHAR(100),profilePic VARCHAR(255))");
+        await connection.query("CREATE TABLE IF NOT EXISTS FavoriteRecipes (user_id INT, recipe_id INT, PRIMARY KEY (user_id, recipe_id))");
         await connection.query("CREATE TABLE IF NOT EXISTS Recipes (id INT PRIMARY KEY, title VARCHAR(255), readyInMinutes INT, image VARCHAR(255), popularity INT, vegan BOOLEAN, vegetarian BOOLEAN, glutenFree BOOLEAN)");
-        await connection.query("CREATE TABLE IF NOT EXISTS lastSearches (user_id VARCHAR(255), recipe_id INT, PRIMARY KEY (user_id, recipe_id))");
+        await connection.query("CREATE TABLE IF NOT EXISTS lastSearches (user_id INT, recipe_id INT, PRIMARY KEY (user_id, recipe_id))");
         await connection.query("COMMIT");
     } catch (err) {
         await connection.query("ROLLBACK");

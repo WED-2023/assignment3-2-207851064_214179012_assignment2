@@ -10,7 +10,7 @@ async function getFavoriteRecipes(user_id){
 }
 
 async function getHistory(user_id){
-    const recipes_id = await DButils.execQuery(`select recipe_id from lastSearches where user_id='${user_id}'`);
+    const recipes_id = await DButils.execQuery(`select recipe_id from lastSearches where user_id='${user_id}' order by recipe_id desc limit 3`);
     return recipes_id;
 }
 
@@ -20,9 +20,9 @@ async function addToHistory(user_id, recipe_id){
 
 
 
-exports = {
+module.exports = {
     markAsFavorite,
     getFavoriteRecipes,
     getHistory,
     addToHistory
-}
+};

@@ -135,12 +135,21 @@ async function createRecipe(recipe) {
     await DButils.execQuery(query);
 }
 
+async function getRecipeLikes(recipeId) {
+    const result = await DButils.execQuery(
+        `SELECT COUNT(Distinct user_id) AS likes
+         FROM FavoriteRecipes WHERE recipe_id = ${recipeId}`
+    );
+    return result[0].likes;
+}
+
 
 module.exports = {
   getRecipeDetails,
   getRecipesByQuery,
   getRandomRecipes,
     createRecipe,
+    getRecipeLikes,
 };
 
 
