@@ -85,6 +85,22 @@ router.post('/like', async (req, res, next) => {
     next(error);
   }});
 
+/**
+ * This path retrieves family recipes from database
+ */
+router.get('/familyRecipes', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    const familyRecipes = await user_utils.getFamilyRecipes();
+    res.status(200).json(familyRecipes);
+  } catch (err) {
+    next(err);
+  }});
+
 
 
 
