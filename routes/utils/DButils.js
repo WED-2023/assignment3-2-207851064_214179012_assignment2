@@ -27,6 +27,7 @@ exports.startTables = async function () {
         await connection.query("CREATE TABLE IF NOT EXISTS FavoriteRecipes (user_id INT, recipe_id INT, PRIMARY KEY (user_id, recipe_id))");
         await connection.query("CREATE TABLE IF NOT EXISTS Recipes (id INT PRIMARY KEY, title VARCHAR(255), readyInMinutes INT, image VARCHAR(255), popularity INT, vegan BOOLEAN, vegetarian BOOLEAN, glutenFree BOOLEAN)");
         await connection.query("CREATE TABLE IF NOT EXISTS lastSearches (user_id INT, recipe_id INT, viewed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, recipe_id))");
+        await connection.query("CREATE TABLE IF NOT EXISTS SpooncularLikes (recipe_id INT, user_id INT, PRIMARY KEY (recipe_id, user_id))");
         await connection.query("COMMIT");
     } catch (err) {
         await connection.query("ROLLBACK");

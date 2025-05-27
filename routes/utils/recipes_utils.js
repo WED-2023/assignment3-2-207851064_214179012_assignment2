@@ -22,14 +22,15 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
+    let { id, title, readyInMinutes, image, spoonacularScore, vegan, vegetarian, glutenFree } = recipe_info.data;
+    let aggregatedLikes=spoonacularScore+ await getSpooncularRecipeLikes(id);
 
     return {
         id: id,
         title: title,
         readyInMinutes: readyInMinutes,
         image: image,
-        popularity: aggregateLikes,
+        popularity: aggregatedLikes,
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
@@ -41,12 +42,13 @@ async function getRecipesPreview(recipe_ids) {
     let recipes_info = [];
     console.log(recipe_ids);
     for (let i = 0; i < recipe_ids.length; i++) {
-        let recipe = await getRecipeInformation(recipe_ids[i]);
+        let recipe = await getRecipeDetails(recipe_ids[i]);
+        console.log(recipe);
         recipe_info.push({
             id: recipe.data.id,
             title: recipe.data.title,
             image: recipe.data.image,
-            popularity: recipe.data.aggregateLikes,
+            popularity: recipe.data.popularity,
             vegan: recipe.data.vegan,
             vegetarian: recipe.data.vegetarian,
             glutenFree: recipe.data.glutenFree
@@ -74,7 +76,7 @@ async function getRecipesByQuery(params) {
             id: recipe.id,
             title: recipe.title,
             image: recipe.image,
-            popularity: recipe.aggregateLikes,
+            popularity: recipe.spoonacularScore,
             vegan: recipe.vegan,
             vegetarian: recipe.vegetarian,
             glutenFree: recipe.glutenFree
@@ -139,6 +141,14 @@ async function getRecipeLikes(recipeId) {
     const result = await DButils.execQuery(
         `SELECT COUNT(Distinct user_id) AS likes
          FROM FavoriteRecipes WHERE recipe_id = ${recipeId}`
+    );
+    return result[0].likes;
+}
+
+async function getSpooncularRecipeLikes(recipeId) {
+    const result = await DButils.execQuery(
+        `SELECT COUNT(Distinct user_id) AS likes
+         FROM SpooncularLikes WHERE recipe_id = ${recipeId}`
     );
     return result[0].likes;
 }

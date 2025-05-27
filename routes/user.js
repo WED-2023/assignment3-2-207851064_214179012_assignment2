@@ -71,6 +71,20 @@ router.get('/history', async (req,res,next) => {
   }
 });
 
+/**
+ * This path likes a recipe by its id
+ */
+router.post('/like', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipe_id = req.query.id;
+
+    await user_utils.likeRecipe(user_id, recipe_id);
+    res.status(200).send("Recipe like status updated successfully");
+  } catch (error) {
+    next(error);
+  }});
+
 
 
 

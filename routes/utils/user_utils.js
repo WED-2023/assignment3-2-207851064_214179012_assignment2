@@ -18,11 +18,16 @@ async function addToHistory(user_id, recipe_id){
     await DButils.execQuery(`insert into lastSearches values ('${user_id}',${recipe_id},CURRENT_TIMESTAMP)`);
 }
 
+async function likeRecipe(recipe_id, user_id) {
+    await DButils.execQuery(`INSERT INTO SpooncularLikes (recipe_id, user_id) VALUES (${recipe_id}, '${user_id}') ON DUPLICATE KEY UPDATE recipe_id = recipe_id`);
+}
+
 
 
 module.exports = {
     markAsFavorite,
     getFavoriteRecipes,
     getHistory,
-    addToHistory
+    addToHistory,
+    likeRecipe
 };

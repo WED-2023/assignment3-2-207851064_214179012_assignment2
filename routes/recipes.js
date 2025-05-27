@@ -37,8 +37,8 @@ router.get("/random", async (req, res, next) => {
  */
 router.get("/likes", async (req, res, next) => {
   try {
-    const likes = await recipes_utils.getRecipeLikes(req.query.id);
-    res.status(200).send({ likes });
+    const recipe = await recipes_utils.getRecipeDetails(req.query.id);
+    res.status(200).send({ recipeId123: recipe.id, likes: recipe.popularity });
   } catch (error) {
     next(error);
   }
