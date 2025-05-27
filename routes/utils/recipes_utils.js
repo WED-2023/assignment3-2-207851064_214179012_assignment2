@@ -43,15 +43,15 @@ async function getRecipesPreview(recipe_ids) {
     console.log(recipe_ids);
     for (let i = 0; i < recipe_ids.length; i++) {
         let recipe = await getRecipeDetails(recipe_ids[i]);
-        console.log(recipe);
-        recipe_info.push({
-            id: recipe.data.id,
-            title: recipe.data.title,
-            image: recipe.data.image,
-            popularity: recipe.data.popularity,
-            vegan: recipe.data.vegan,
-            vegetarian: recipe.data.vegetarian,
-            glutenFree: recipe.data.glutenFree
+        // console.log(recipe);
+        recipes_info.push({
+            id: recipe.id,
+            title: recipe.title,
+            image: recipe.image,
+            popularity: recipe.popularity,
+            vegan: recipe.vegan,
+            vegetarian: recipe.vegetarian,
+            glutenFree: recipe.glutenFree
         });
     }
     return recipes_info;
@@ -71,17 +71,7 @@ async function getRecipesComplexSearch(params) {
 async function getRecipesByQuery(params) {
     let recipes = await getRecipesComplexSearch(params);
     let recipes_list = recipes.data.results;
-    return recipes_list.map(recipe => {
-        return {
-            id: recipe.id,
-            title: recipe.title,
-            image: recipe.image,
-            popularity: recipe.spoonacularScore,
-            vegan: recipe.vegan,
-            vegetarian: recipe.vegetarian,
-            glutenFree: recipe.glutenFree
-        }
-    });    
+    return await getRecipesPreview(recipes_list.map(recipe => recipe.id));   
 }
 
 async function getRandom(number) {
