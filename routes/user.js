@@ -79,7 +79,7 @@ router.post('/like', async (req, res, next) => {
     const user_id = req.session.user_id;
     const recipe_id = req.query.id;
 
-    await user_utils.likeRecipe(user_id, recipe_id);
+    await user_utils.likeRecipe(recipe_id, user_id);
     res.status(200).send("Recipe like status updated successfully");
   } catch (error) {
     next(error);

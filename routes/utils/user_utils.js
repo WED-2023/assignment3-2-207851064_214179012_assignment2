@@ -15,7 +15,7 @@ async function getHistory(user_id){
 }
 
 async function addToHistory(user_id, recipe_id){
-    await DButils.execQuery(`insert into lastSearches values ('${user_id}',${recipe_id},CURRENT_TIMESTAMP)`);
+    await DButils.execQuery(`insert into lastSearches values ('${user_id}',${recipe_id},CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE recipe_id = recipe_id`);
 }
 
 async function likeRecipe(recipe_id, user_id) {
