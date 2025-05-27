@@ -22,8 +22,8 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, spoonacularScore, vegan, vegetarian, glutenFree } = recipe_info.data;
-    let aggregatedLikes=spoonacularScore+ await getSpooncularRecipeLikes(id);
+    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
+    let aggregatedLikes=aggregateLikes+ await getSpooncularRecipeLikes(id);
 
     return {
         id: id,
