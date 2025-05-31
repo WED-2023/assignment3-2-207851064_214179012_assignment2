@@ -56,11 +56,12 @@ async function getFamilyRecipes(user_id) {
         return {
         id: recipe.recipe_id,
         title: recipe.title,
+        readyInMinutes: recipe.readyInMinutes,
         image: recipe.image,
         popularity: recipe.popularity,
         vegan: recipe.vegan,
         vegetarian: recipe.vegetarian,
-        glutenFree: recipe.glutenFree
+        glutenFree: recipe.glutenFree,
     }
     });
 }

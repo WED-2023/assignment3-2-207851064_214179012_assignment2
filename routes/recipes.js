@@ -35,14 +35,14 @@ router.get("/random", async (req, res, next) => {
 /**
  * This returns how many likes a recipe has
  */
-router.get("/likes", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.query.id);
-    res.status(200).send({ recipeId123: recipe.id, likes: recipe.popularity });
-  } catch (error) {
-    next(error);
-  }
-});
+// router.get("/likes", async (req, res, next) => {
+//   try {
+//     const recipe = await recipes_utils.getRecipeDetails(req.query.id);
+//     res.status(200).send({ recipeId123: recipe.id, likes: recipe.popularity });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 /**
  * This path returns a full details of a recipe by its id
