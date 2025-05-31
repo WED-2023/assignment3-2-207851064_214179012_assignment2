@@ -1,23 +1,28 @@
 openapi: 3.0.0
 servers:
-  - description: SwaggerHub API Auto Mocking
+  - description: Local Express Server
+    url: http://localhost:3000
+  - description: SwaggerHub Mock Server
     url: https://virtserver.swaggerhub.com/harelbrener/api1/1.0.0
+
 info:
-  description: This is a simple API
-  version: "1.0.0"
   title: Grandma's Recipes API
+  version: "1.0.0"
+  description: This is a simple API
   contact:
     email: harelbr@post.bgu.ac.il
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
 tags:
   - name: auth
     description: Authentication endpoints
   - name: recipes
     description: Operations on recipes
   - name: users
-    description: User-specific operations (requires authentication)
+    description: User‐specific operations (requires authentication)
+
 paths:
   /auth/Register:
     post:
@@ -39,12 +44,18 @@ paths:
               password: Abc@1234
               profilePic: https://example.com/images/johndoe.jpg
       responses:
-        '201':
+        "201":
           description: User created successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericSuccessResponse'
+        "409":
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/Login:
     post:
@@ -61,12 +72,18 @@ paths:
               username: johndoe
               password: Abc@1234
       responses:
-        '200':
-          description: Login successful
+        "200":
+          description: Login succeeded
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericSuccessResponse'
+        "401":
+          description: Username or password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/Logout:
     post:
@@ -74,12 +91,12 @@ paths:
         - auth
       summary: Logout the current user
       responses:
-        '200':
-          description: Logout successful
+        "200":
+          description: Logout succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LogoutResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
 
   /recipes/search:
     get:
@@ -108,7 +125,7 @@ paths:
             type: string
           description: Comma-separated list of intolerances (e.g., gluten)
       responses:
-        '200':
+        "200":
           description: A list of recipe previews matching the search
           content:
             application/json:
@@ -131,7 +148,7 @@ paths:
             minimum: 1
           description: Number of random recipes to retrieve
       responses:
-        '200':
+        "200":
           description: A list of random recipe previews
           content:
             application/json:
@@ -153,12 +170,18 @@ paths:
             type: integer
           description: The recipe ID
       responses:
-        '200':
+        "200":
           description: Likes count for the given recipe
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LikesResponse'
+        "404":
+          description: Recipe not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes/information:
     get:
@@ -173,12 +196,18 @@ paths:
             type: integer
           description: The recipe ID
       responses:
-        '200':
+        "200":
           description: Recipe details
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecipeDetails'
+        "404":
+          description: Recipe not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes:
     post:
@@ -199,10 +228,40 @@ paths:
               vegetarian: true
               glutenFree: false
       responses:
-        '201':
+        "201":
           description: Recipe created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        "400":
+          description: Bad request (missing or invalid fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/favorites:
+    get:
+      tags:
+        - users
+      summary: Get favorite recipes of the logged-in user
+      responses:
+        "200":
+          description: Array of recipe IDs saved as favorites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
     post:
       tags:
         - users
@@ -222,22 +281,18 @@ paths:
             example:
               recipeId: 12345
       responses:
-        '200':
+        "200":
           description: Recipe saved as favorite successfully
-
-    get:
-      tags:
-        - users
-      summary: Get favorite recipes of the logged-in user
-      responses:
-        '200':
-          description: Array of recipe IDs saved as favorites
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: integer
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/history:
     get:
@@ -245,7 +300,7 @@ paths:
         - users
       summary: Get the last three recipes viewed by the logged-in user
       responses:
-        '200':
+        "200":
           description: Array of recipe IDs from viewing history
           content:
             application/json:
@@ -253,6 +308,12 @@ paths:
                 type: array
                 items:
                   type: integer
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/likespooncular:
     post:
@@ -267,8 +328,18 @@ paths:
             type: integer
           description: The Spoonacular recipe ID to like/unlike
       responses:
-        '200':
+        "200":
           description: Recipe like status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/likedb:
     post:
@@ -283,8 +354,18 @@ paths:
             type: integer
           description: The local database recipe ID to like/unlike
       responses:
-        '200':
+        "200":
           description: Recipe like status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/familyRecipes:
     get:
@@ -292,7 +373,7 @@ paths:
         - users
       summary: Get family recipes from database for the logged-in user
       responses:
-        '200':
+        "200":
           description: Array of family recipe previews
           content:
             application/json:
@@ -300,6 +381,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
     post:
       tags:
@@ -319,8 +406,24 @@ paths:
               vegetarian: true
               glutenFree: false
       responses:
-        '201':
+        "201":
           description: Family recipe added successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Bad request (missing or invalid fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -406,6 +509,14 @@ components:
           type: boolean
         glutenFree:
           type: boolean
+        extendedIngredients:
+          type: array
+          items:
+            type: object
+          description: Details of each ingredient (if returned by the service)
+        instructions:
+          type: string
+          description: Cooking instructions
 
     NewRecipe:
       type: object
@@ -435,7 +546,7 @@ components:
     LikesResponse:
       type: object
       properties:
-        recipeId123:
+        recipeId:
           type: integer
           description: The recipe ID
         likes:
@@ -450,10 +561,10 @@ components:
         success:
           type: boolean
 
-    LogoutResponse:
+    ErrorResponse:
       type: object
       properties:
-        success:
-          type: boolean
+        status:
+          type: integer
         message:
           type: string
