@@ -10,7 +10,7 @@ async function getFavoriteRecipes(user_id){
 }
 
 async function getHistory(user_id){
-    const recipes_id = await DButils.execQuery(`select recipe_id from lastSearches where user_id='${user_id}' ORDER BY viewed_at DESC limit 3`);
+    const recipes_id = await DButils.execQuery(`select recipe_id from lastSearches where user_id='${user_id}' ORDER BY viewed_at`);
     return recipes_id;
 }
 
