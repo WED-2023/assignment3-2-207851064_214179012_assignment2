@@ -79,25 +79,12 @@ router.post('/likespooncular', async (req, res, next) => {
     const user_id = req.session.user_id;
     const recipe_id = req.query.id;
 
-    await user_utils.likeRecipe(recipe_id, user_id,"SpooncularLikes");
+    await user_utils.likeRecipe(recipe_id, user_id);
     res.status(200).send("Recipe like status updated successfully");
   } catch (error) {
     next(error);
   }});
 
-/**
- * This path likes a recipe by its id
- */
-router.post('/likedb', async (req, res, next) => {
-  try {
-    const user_id = req.session.user_id;
-    const recipe_id = req.query.id;
-
-    await user_utils.likeRecipe(recipe_id, user_id,"DBLikes");
-    res.status(200).send("Recipe like status updated successfully");
-  } catch (error) {
-    next(error);
-  }});
 
 /**
  * This path retrieves family recipes from database

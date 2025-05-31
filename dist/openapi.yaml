@@ -19,7 +19,7 @@ tags:
   - name: auth
     description: Authentication endpoints
   - name: recipes
-    description: Operations on recipes
+    description: Operations on Spoonacular recipes
   - name: users
     description: User‐specific operations (requires authentication)
 
@@ -102,7 +102,7 @@ paths:
     get:
       tags:
         - recipes
-      summary: Get a list of recipes by search parameters
+      summary: Get a list of Spoonacular recipes by search parameters
       parameters:
         - in: query
           name: query
@@ -124,21 +124,34 @@ paths:
           schema:
             type: string
           description: Comma-separated list of intolerances (e.g., gluten)
+        - in: query
+          name: number
+          schema:
+            type: integer
+            minimum: 1
+            example: 10
+          description: Number of results to return (default 5)
       responses:
         "200":
-          description: A list of recipe preview objects matching the search
+          description: A list of Spoonacular recipe preview objects matching the search
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecipePreview'
+        "402":
+          description: Spoonacular quota exceeded (Payment Required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes/random:
     get:
       tags:
         - recipes
-      summary: Get a list of random recipes
+      summary: Get a list of random Spoonacular recipes
       parameters:
         - in: query
           name: number
@@ -149,29 +162,35 @@ paths:
           description: Number of random recipes to retrieve
       responses:
         "200":
-          description: A list of random recipe preview objects
+          description: A list of random Spoonacular recipe preview objects
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecipePreview'
+        "402":
+          description: Spoonacular quota exceeded (Payment Required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes/information:
     get:
       tags:
         - recipes
-      summary: Get full details of a recipe by its ID
+      summary: Get full details of a Spoonacular recipe by its ID
       parameters:
         - in: query
           name: id
           required: true
           schema:
             type: integer
-          description: The recipe ID
+          description: The Spoonacular recipe ID
       responses:
         "200":
-          description: Recipe details object
+          description: Spoonacular recipe details object
           content:
             application/json:
               schema:
@@ -182,25 +201,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        "402":
+          description: Spoonacular quota exceeded (Payment Required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes/home:
     get:
       tags:
         - recipes
-      summary: Get a list of recipes by their IDs (home page)
+      summary: Get Spoonacular recipe details for multiple IDs
       parameters:
         - in: query
           name: ids
           required: true
           schema:
             type: string
-            example: "7,8,9,10"
+            example: "1,2,3,4"
           description: |
-            Comma-separated list of recipe IDs to retrieve (e.g. `?ids=7,8,9,10`).
-            Only unique, valid integers are considered; duplicates and non-numeric entries are ignored.
+            Comma-separated list of Spoonacular recipe IDs (e.g. `?ids=7,8,9,10`).
+            Only unique, valid integers are considered; duplicates and non‐numeric entries are ignored.
       responses:
         "200":
-          description: Successfully fetched recipe details for valid IDs
+          description: Successfully fetched Spoonacular recipe details for valid IDs
           content:
             application/json:
               schema:
@@ -208,7 +233,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/RecipeDetails'
         "400":
-          description: Bad request Missing or malformed `ids` parameter
+          description: Bad request – missing or malformed `ids` parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "402":
+          description: Spoonacular quota exceeded (Payment Required)
           content:
             application/json:
               schema:
@@ -218,10 +249,10 @@ paths:
     get:
       tags:
         - users
-      summary: Get favorite recipes of the logged-in user
+      summary: Get favorite Spoonacular recipe IDs saved by the logged‐in user
       responses:
         "200":
-          description: Array of recipe IDs saved as favorites
+          description: Array of Spoonacular recipe IDs
           content:
             application/json:
               schema:
@@ -238,7 +269,7 @@ paths:
     post:
       tags:
         - users
-      summary: Save a recipe to the logged-in user's favorites
+      summary: Save a Spoonacular recipe ID to the logged‐in user's favorites
       requestBody:
         required: true
         content:
@@ -250,12 +281,12 @@ paths:
               properties:
                 recipeId:
                   type: integer
-                  description: The ID of the recipe to mark as favorite
+                  description: The Spoonacular recipe ID to mark as favorite
             example:
-              recipeId: 12345
+              recipeId: 716429
       responses:
         "200":
-          description: Recipe saved as favorite successfully
+          description: Recipe successfully saved as favorite
           content:
             application/json:
               schema:
@@ -271,10 +302,10 @@ paths:
     get:
       tags:
         - users
-      summary: Get the last three recipes viewed by the logged-in user
+      summary: Get the last three Spoonacular recipe IDs viewed by the logged‐in user
       responses:
         "200":
-          description: Array of recipe IDs from viewing history
+          description: Array of Spoonacular recipe IDs from viewing history
           content:
             application/json:
               schema:
@@ -302,7 +333,7 @@ paths:
           description: The Spoonacular recipe ID to like/unlike
       responses:
         "200":
-          description: Recipe like status updated successfully
+          description: Spoonacular recipe like status updated successfully
           content:
             application/json:
               schema:
@@ -314,46 +345,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/likedb:
-    post:
-      tags:
-        - users
-      summary: Toggle like status for a locally stored recipe
-      parameters:
-        - in: query
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: The local database recipe ID to like/unlike
-      responses:
-        "200":
-          description: Recipe like status updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericSuccessResponse'
-        "401":
-          description: Unauthorized (user not logged in)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   /users/familyRecipes:
     get:
       tags:
         - users
-      summary: Get family recipes from database for the logged-in user
+      summary: Get family recipes from database for the logged‐in user
       responses:
         "200":
-          description: Array of family recipe preview objects
+          description: Array of family recipe objects
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RecipePreview'
+                  $ref: '#/components/schemas/FamilyRecipe'
         "401":
           description: Unauthorized (user not logged in)
           content:
@@ -364,20 +370,24 @@ paths:
     post:
       tags:
         - users
-      summary: Add a new family recipe for the logged-in user
+      summary: Add a new family recipe for the logged‐in user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewRecipe'
+              $ref: '#/components/schemas/NewFamilyRecipe'
             example:
-              title: Aunt Mary's Latkes
-              readyInMinutes: 40
-              image: https://example.com/images/latkes.jpg
-              vegan: false
-              vegetarian: true
-              glutenFree: false
+              title: "חמין שבת"
+              owner: "סבתא רחל"
+              occasion: "שבת"
+              ingredients: "שעועית, תפוחי אדמה, בשר, ביצים, זעתר, מלח, מים"
+              instructions: |
+                1) לטבול ולהשרות את השעועית בלילה קודם.
+                2) למקם את כל החומרים בקומקום של חמין: שמים שעועית, תפוחי אדמה, בשר חתוך, וביצים קלופות.
+                3) מוסיפים מים עד לכיסוי, מתבלים במלח וזעתר.
+                4) מבשלים על אש נמוכה במשך ~12 שעות (לילה שלם).
+                5) מגישים חם בבוקר עם לחם טרי.
       responses:
         "201":
           description: Family recipe added successfully (plain text)
@@ -444,7 +454,7 @@ components:
       properties:
         id:
           type: integer
-          description: The unique ID of the recipe
+          description: The unique Spoonacular recipe ID
         title:
           type: string
         image:
@@ -465,7 +475,7 @@ components:
       properties:
         id:
           type: integer
-          description: The unique ID of the recipe
+          description: The unique Spoonacular recipe ID
         title:
           type: string
         readyInMinutes:
@@ -483,31 +493,80 @@ components:
           type: boolean
         glutenFree:
           type: boolean
+        servings:
+          type: integer
+          description: Number of servings the recipe yields
+        ingredients:
+          type: array
+          description: List of ingredients (id, name, amount, unit)
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              amount:
+                type: number
+              unit:
+                type: string
+        instructions:
+          type: array
+          description: List of preparation steps
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+              step:
+                type: string
 
-    NewRecipe:
+    FamilyRecipe:
+      type: object
+      properties:
+        recipe_id:
+          type: integer
+          description: Unique recipe ID for this user
+        title:
+          type: string
+          description: Title of the family recipe
+        owner:
+          type: string
+          description: Who the recipe belongs to (e.g., "סבתא רחל")
+        occasion:
+          type: string
+          description: When it is traditionally prepared (e.g., "שבת", "פסח")
+        ingredients:
+          type: string
+          description: List of ingredients (comma-separated or JSON string)
+        instructions:
+          type: string
+          description: Full preparation instructions
+
+    NewFamilyRecipe:
       type: object
       required:
         - title
-        - readyInMinutes
-        - image
-        - vegan
-        - vegetarian
-        - glutenFree
+        - owner
+        - occasion
+        - ingredients
+        - instructions
       properties:
         title:
           type: string
-        readyInMinutes:
-          type: integer
-          description: Time (in minutes) to prepare and cook
-        image:
+          description: Title of the family recipe
+        owner:
           type: string
-          format: uri
-        vegan:
-          type: boolean
-        vegetarian:
-          type: boolean
-        glutenFree:
-          type: boolean
+          description: Who the recipe belongs to
+        occasion:
+          type: string
+          description: When it is traditionally prepared
+        ingredients:
+          type: string
+          description: List of ingredients (comma-separated or JSON string)
+        instructions:
+          type: string
+          description: Full preparation instructions
 
     GenericSuccessResponse:
       type: object

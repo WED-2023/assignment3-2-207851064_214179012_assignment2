@@ -34,6 +34,18 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
+        ingredients: recipe_info.data.extendedIngredients.map(ingredient => ({
+            id: ingredient.id,
+            name: ingredient.name,
+            amount: ingredient.amount,
+            unit: ingredient.unit
+        })),
+        instructions: recipe_info.data.analyzedInstructions.length > 0 ? 
+            recipe_info.data.analyzedInstructions[0].steps.map(step => ({
+                number: step.number,
+                step: step.step
+            })) : [],
+        servings: recipe_info.data.servings,
     }
 }
 
@@ -54,6 +66,7 @@ async function getRecipesComplexSearch(params) {
             cuisine: params.cuisine,
             diet: params.diet,
             intolerances: params.intolerances,
+            number: params.number || 5, 
             apiKey: process.env.spooncular_apiKey
         }
     });

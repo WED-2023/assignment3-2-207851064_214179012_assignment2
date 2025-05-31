@@ -17,30 +17,22 @@ async function getHistory(user_id){
 async function addToHistory(user_id, recipe_id){
     await DButils.execQuery(`insert into lastSearches values ('${user_id}',${recipe_id},CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE viewed_at = CURRENT_TIMESTAMP`);
 }
-async function likeRecipe(recipe_id, user_id, db_type) {
+async function likeRecipe(recipe_id, user_id) {
     const result = await DButils.execQuery(
-    `SELECT * FROM ${db_type} WHERE recipe_id = ${recipe_id} AND user_id = ${user_id}`,
+    `SELECT * FROM SpooncularLikes WHERE recipe_id = ${recipe_id} AND user_id = ${user_id}`,
     [recipe_id, user_id]);
 
     if (result.length > 0) {
         // Record exists --> delete
         await DButils.execQuery(
-            `DELETE FROM ${db_type} WHERE recipe_id = ${recipe_id} AND user_id = ${user_id}`,
+            `DELETE FROM SpooncularLikes WHERE recipe_id = ${recipe_id} AND user_id = ${user_id}`,
             [recipe_id, user_id]
         );
     } else {
         // Record does not exist --> insert
         await DButils.execQuery(
-            `INSERT INTO ${db_type} (recipe_id, user_id) VALUES (${recipe_id}, ${user_id})`,
+            `INSERT INTO SpooncularLikes (recipe_id, user_id) VALUES (${recipe_id}, ${user_id})`,
             [recipe_id, user_id]
-        );
-    }
-
-    if (db_type === "DBLikes") {
-        // Update the popularity in Recipes table
-        const popularityChange = result.length > 0 ? -1 : 1; // Decrease if deleted, increase if added
-        await DButils.execQuery(
-            `UPDATE Recipes SET popularity = popularity + ${popularityChange} WHERE recipe_id = ${recipe_id}`
         );
     }
 }
@@ -54,23 +46,21 @@ async function getFamilyRecipes(user_id) {
     }
     return familyRecipes.map(recipe => {
         return {
-        id: recipe.recipe_id,
-        title: recipe.title,
-        readyInMinutes: recipe.readyInMinutes,
-        image: recipe.image,
-        popularity: recipe.popularity,
-        vegan: recipe.vegan,
-        vegetarian: recipe.vegetarian,
-        glutenFree: recipe.glutenFree,
-    }
+            recipe_id: recipe.recipe_id,
+            title: recipe.title,
+            owner: recipe.owner,
+            occasion: recipe.occasion,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions
+        };
     });
 }
 
 async function postFamilyRecipes(user_id,recipe) {
     let max_id = await DButils.execQuery(`SELECT MAX(recipe_id) as max_id FROM Recipes WHERE user_id = '${user_id}'`);
     max_id = max_id[0].max_id || 0; // If no recipes exist, start from 0
-    await DButils.execQuery(`INSERT INTO Recipes (user_id, recipe_id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree) 
-        VALUES ('${user_id}', ${max_id + 1}, '${recipe.title}', ${recipe.readyInMinutes}, '${recipe.image}', ${0}, ${recipe.vegan}, ${recipe.vegetarian}, ${recipe.glutenFree})`);
+    await DButils.execQuery(`INSERT INTO Recipes (user_id, recipe_id, title, owner, occasion, ingredients, instructions)
+    VALUES ('${user_id}', ${max_id + 1}, '${recipe.title}', '${recipe.owner}', '${recipe.occasion}', '${recipe.ingredients}', '${recipe.instructions}')`);
 }
 
 
