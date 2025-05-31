@@ -35,6 +35,14 @@ async function likeRecipe(recipe_id, user_id, db_type) {
             [recipe_id, user_id]
         );
     }
+
+    if (db_type === "DBLikes") {
+        // Update the popularity in Recipes table
+        const popularityChange = result.length > 0 ? -1 : 1; // Decrease if deleted, increase if added
+        await DButils.execQuery(
+            `UPDATE Recipes SET popularity = popularity + ${popularityChange} WHERE recipe_id = ${recipe_id}`
+        );
+    }
 }
 
 
