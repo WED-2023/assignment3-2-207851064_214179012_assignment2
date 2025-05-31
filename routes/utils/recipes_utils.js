@@ -100,41 +100,6 @@ async function getRandomRecipes(number) {
 }
 
 // internal services - using the db
-async function createRecipe(recipe) {
-    const {title, readyInMinutes, image, vegan, vegetarian, glutenFree } = recipe;
-
-    // Check if the recipe already exists in the database
-    const existing = await DButils.execQuery(
-    `SELECT * FROM Recipes WHERE title = '${title.replace(/'/g, "''")}'`
-    );
-    if (existing.length > 0) {
-        console.log("Recipe already exists:", existing);
-        throw new Error("Recipe already exists");
-    }
-
-    // Compute new ID
-    let maxid= await DButils.execQuery(`SELECT MAX(id) as maxid FROM Recipes`);
-    if (maxid[0].maxid==null){
-        id=1;
-    }
-    else{
-        id=maxid[0].maxid+1;
-    }
-
-    // Insert the new recipe into the database
-    const query = `INSERT INTO Recipes (id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree) 
-                   VALUES (${id}, '${title}', ${readyInMinutes}, '${image}', ${0}, ${vegan}, ${vegetarian}, ${glutenFree})`;
-    await DButils.execQuery(query);
-}
-
-async function getRecipeLikes(recipeId) {
-    const result = await DButils.execQuery(
-        `SELECT COUNT(Distinct user_id) AS likes
-         FROM FavoriteRecipes WHERE recipe_id = ${recipeId}`
-    );
-    return result[0].likes;
-}
-
 async function getSpooncularRecipeLikes(recipeId) {
     const result = await DButils.execQuery(
         `SELECT COUNT(Distinct user_id) AS likes
@@ -147,9 +112,7 @@ async function getSpooncularRecipeLikes(recipeId) {
 module.exports = {
   getRecipeDetails,
   getRecipesByQuery,
-  getRandomRecipes,
-    createRecipe,
-    getRecipeLikes,
+  getRandomRecipes
 };
 
 

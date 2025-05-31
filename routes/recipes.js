@@ -47,9 +47,9 @@ router.get("/likes", async (req, res, next) => {
 /**
  * This path returns a full details of a recipe by its id
  */
-router.get("/:recipeId", async (req, res, next) => {
+router.get("/information", async (req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
+    const recipe = await recipes_utils.getRecipeDetails(req.query.id);
     addRecipeToHistory(recipe.id,req, next);
     res.status(200).send(recipe);
   } catch (error) {

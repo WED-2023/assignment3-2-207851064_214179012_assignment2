@@ -74,12 +74,26 @@ router.get('/history', async (req,res,next) => {
 /**
  * This path likes a recipe by its id
  */
-router.post('/like', async (req, res, next) => {
+router.post('/likespooncular', async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.query.id;
 
-    await user_utils.likeRecipe(recipe_id, user_id);
+    await user_utils.likeRecipe(recipe_id, user_id,"SpooncularLikes");
+    res.status(200).send("Recipe like status updated successfully");
+  } catch (error) {
+    next(error);
+  }});
+
+/**
+ * This path likes a recipe by its id
+ */
+router.post('/likedb', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipe_id = req.query.id;
+
+    await user_utils.likeRecipe(recipe_id, user_id,"DBLikes");
     res.status(200).send("Recipe like status updated successfully");
   } catch (error) {
     next(error);
@@ -95,11 +109,29 @@ router.get('/familyRecipes', async (req, res, next) => {
       return res.status(400).json({ error: 'Missing user id' });
     }
 
-    const familyRecipes = await user_utils.getFamilyRecipes();
+    const familyRecipes = await user_utils.getFamilyRecipes(user_id);
     res.status(200).json(familyRecipes);
   } catch (err) {
     next(err);
   }});
+
+/**
+ * This path adds a new family recipe to the database
+ */
+router.post('/familyRecipes', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    const recipe = req.body;
+    await user_utils.postFamilyRecipes(user_id, recipe);
+    res.status(201).send("Family recipe added successfully");
+  } catch (err) {
+    next(err);
+  }
+});
 
 
 
