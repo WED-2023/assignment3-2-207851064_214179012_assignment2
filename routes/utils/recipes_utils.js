@@ -34,7 +34,6 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
-        
     }
 }
 
@@ -43,16 +42,7 @@ async function getRecipesPreview(recipe_ids) {
     console.log(recipe_ids);
     for (let i = 0; i < recipe_ids.length; i++) {
         let recipe = await getRecipeDetails(recipe_ids[i]);
-        // console.log(recipe);
-        recipes_info.push({
-            id: recipe.id,
-            title: recipe.title,
-            image: recipe.image,
-            popularity: recipe.popularity,
-            vegan: recipe.vegan,
-            vegetarian: recipe.vegetarian,
-            glutenFree: recipe.glutenFree
-        });
+        recipes_info.push(recipe);
     }
     return recipes_info;
 }
@@ -110,15 +100,12 @@ async function getSpooncularRecipeLikes(recipeId) {
 
 
 module.exports = {
-  getRecipeDetails,
-  getRecipesByQuery,
-  getRandomRecipes
+    getRecipeDetails,
+    getRecipesPreview,
+    getRecipesByQuery,
+    getRandomRecipes,
+    
 };
-
-
-
-
-// exports.getRecipeDetails = getRecipeDetails;
 
 
 

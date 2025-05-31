@@ -126,7 +126,7 @@ paths:
           description: Comma-separated list of intolerances (e.g., gluten)
       responses:
         "200":
-          description: A list of recipe previews matching the search
+          description: A list of recipe preview objects matching the search
           content:
             application/json:
               schema:
@@ -149,39 +149,13 @@ paths:
           description: Number of random recipes to retrieve
       responses:
         "200":
-          description: A list of random recipe previews
+          description: A list of random recipe preview objects
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecipePreview'
-
-  /recipes/likes:
-    get:
-      tags:
-        - recipes
-      summary: Get the number of likes for a specific recipe
-      parameters:
-        - in: query
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: The recipe ID
-      responses:
-        "200":
-          description: Likes count for the given recipe
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LikesResponse'
-        "404":
-          description: Recipe not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   /recipes/information:
     get:
@@ -197,7 +171,7 @@ paths:
           description: The recipe ID
       responses:
         "200":
-          description: Recipe details
+          description: Recipe details object
           content:
             application/json:
               schema:
@@ -209,33 +183,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /recipes:
-    post:
+  /recipes/home:
+    get:
       tags:
         - recipes
-      summary: Create a new recipe entry
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewRecipe'
-            example:
-              title: Grandma's Chocolate Cake
-              readyInMinutes: 90
-              image: https://example.com/images/chocolate_cake.jpg
-              vegan: false
-              vegetarian: true
-              glutenFree: false
+      summary: Get a list of recipes by their IDs (home page)
+      parameters:
+        - in: query
+          name: ids
+          required: true
+          schema:
+            type: string
+            example: "7,8,9,10"
+          description: |
+            Comma-separated list of recipe IDs to retrieve (e.g. `?ids=7,8,9,10`).
+            Only unique, valid integers are considered; duplicates and non-numeric entries are ignored.
       responses:
-        "201":
-          description: Recipe created successfully
+        "200":
+          description: Successfully fetched recipe details for valid IDs
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericSuccessResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeDetails'
         "400":
-          description: Bad request (missing or invalid fields)
+          description: Bad request Missing or malformed `ids` parameter
           content:
             application/json:
               schema:
@@ -374,7 +347,7 @@ paths:
       summary: Get family recipes from database for the logged-in user
       responses:
         "200":
-          description: Array of family recipe previews
+          description: Array of family recipe preview objects
           content:
             application/json:
               schema:
@@ -407,11 +380,12 @@ paths:
               glutenFree: false
       responses:
         "201":
-          description: Family recipe added successfully
+          description: Family recipe added successfully (plain text)
           content:
             text/plain:
               schema:
                 type: string
+                example: "Family recipe added successfully"
         "400":
           description: Bad request (missing or invalid fields)
           content:
@@ -509,14 +483,6 @@ components:
           type: boolean
         glutenFree:
           type: boolean
-        extendedIngredients:
-          type: array
-          items:
-            type: object
-          description: Details of each ingredient (if returned by the service)
-        instructions:
-          type: string
-          description: Cooking instructions
 
     NewRecipe:
       type: object
@@ -543,16 +509,6 @@ components:
         glutenFree:
           type: boolean
 
-    LikesResponse:
-      type: object
-      properties:
-        recipeId:
-          type: integer
-          description: The recipe ID
-        likes:
-          type: integer
-          description: Number of likes for the recipe
-
     GenericSuccessResponse:
       type: object
       properties:
@@ -568,3 +524,6 @@ components:
           type: integer
         message:
           type: string
+      example:
+        status: 400
+        message: "Bad request"

@@ -58,12 +58,20 @@ router.get("/information", async (req, res, next) => {
 });
 
 /**
- * This path create new recipe in the DB if not exist
+ * This path returns a list of recipes without the user history
+ * This is used for the home page
  */
-router.post("/", async (req, res, next) => {
+router.get("/home", async (req, res, next) => {
+  let ids = req.query.ids;
   try {
-    const recipe = await recipes_utils.createRecipe(req.body);
-    res.status(201).send("recipe created successfully");
+    if (ids) {
+      ids = ids.split(",");
+      ids = Array.from(new Set(ids));
+      const recipes = await recipes_utils.getRecipesPreview(ids);
+      res.status(200).send(recipes);
+    } else {
+      return res.status(400).json({ error: 'Bad request Missing or malformed `ids` parameter' });
+    }
   } catch (error) {
     next(error);
   }
