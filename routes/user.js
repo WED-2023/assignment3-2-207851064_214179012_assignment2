@@ -30,6 +30,7 @@ router.post('/favorites', async (req,res,next) => {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
     await user_utils.markAsFavorite(user_id,recipe_id);
+    console.log(`Recipe ${recipe_id} favorite status updated for user ${user_id}`);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
     next(error);
@@ -62,9 +63,9 @@ router.get('/history', async (req,res,next) => {
     if (!user_id) {
       return res.status(400).json({ error: 'Missing user id' });
     }
-
     const rows = await user_utils.getHistory(user_id);
-    const recipeIds = rows.map(r => r.recipe_id);
+    const Ids = rows.map(r => r.recipe_id);
+    const recipeIds = [...Ids].reverse().slice(0, 5);
     res.status(200).json(recipeIds);
   } catch (err) {
     next(err);
@@ -80,6 +81,7 @@ router.post('/likespooncular', async (req, res, next) => {
     const recipe_id = req.query.id;
 
     await user_utils.likeRecipe(recipe_id, user_id);
+    console.log(`Recipe ${recipe_id} like status updated for user ${user_id}`);
     res.status(200).send("Recipe like status updated successfully");
   } catch (error) {
     next(error);
@@ -117,6 +119,25 @@ router.post('/familyRecipes', async (req, res, next) => {
     res.status(201).send("Family recipe added successfully");
   } catch (err) {
     next(err);
+  }
+});
+
+/**
+ * This path returns if user liked a recipe by its id
+ */
+router.get('/recipesliked', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id or recipe id' });
+    }
+
+    const liked = await user_utils.getLikedRecipes(user_id);
+    console.log("Liked recipes for user:", user_id, "are:", liked);
+    res.status(200).json({ liked });
+  } catch (error) {
+    next(error);
   }
 });
 

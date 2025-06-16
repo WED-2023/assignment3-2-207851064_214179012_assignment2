@@ -1,7 +1,22 @@
 const DButils = require("./DButils");
 
-async function markAsFavorite(user_id, recipe_id){
-    await DButils.execQuery(`insert into FavoriteRecipes values ('${user_id}',${recipe_id})`);
+async function markAsFavorite(user_id, recipe_id) {
+  // check if this recipe is already in the user's favorites
+  const result = await DButils.execQuery(
+    `SELECT * FROM FavoriteRecipes WHERE recipe_id = ${recipe_id} AND user_id = '${user_id}'`
+  );
+
+  if (result.length > 0) {
+    // already favorited → remove it
+    await DButils.execQuery(
+      `DELETE FROM FavoriteRecipes WHERE recipe_id = ${recipe_id} AND user_id = '${user_id}'`
+    );
+  } else {
+    // not yet favorited → add it
+    await DButils.execQuery(
+      `INSERT INTO FavoriteRecipes (user_id, recipe_id) VALUES ('${user_id}', ${recipe_id})`
+    );
+  }
 }
 
 async function getFavoriteRecipes(user_id){
@@ -35,6 +50,11 @@ async function likeRecipe(recipe_id, user_id) {
             [recipe_id, user_id]
         );
     }
+}
+
+async function getLikedRecipes(user_id) {
+    const likedRecipes = await DButils.execQuery(`SELECT recipe_id FROM SpooncularLikes WHERE user_id = '${user_id}'`);
+    return likedRecipes.map(recipe => recipe.recipe_id);
 }
 
 
@@ -71,6 +91,7 @@ module.exports = {
     getHistory,
     addToHistory,
     likeRecipe,
+    getLikedRecipes,
     getFamilyRecipes,
     postFamilyRecipes
 };

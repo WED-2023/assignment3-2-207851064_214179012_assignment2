@@ -39,6 +39,10 @@ app.get("/",function(req,res)
 
 });
 
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
 // app.use(cors());
 // app.options("*", cors());
 
