@@ -24,9 +24,7 @@ async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
     console.log(recipe_info.data);
-    console.log("original likes: " + aggregateLikes, "added likes: " + await getSpooncularRecipeLikes(id));
     let aggregatedLikes=aggregateLikes+ await getSpooncularRecipeLikes(id);
-    console.log("total likes: " + aggregatedLikes);
     return {
         id: id,
         title: title,

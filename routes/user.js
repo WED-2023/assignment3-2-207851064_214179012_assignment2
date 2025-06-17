@@ -55,7 +55,7 @@ router.get('/favorites', async (req,res,next) => {
 });
 
 /**
- * This path gets last 3 recipes viewed by the logged-in user
+ * This path gets last recipes viewed by the logged-in user
  */
 router.get('/history', async (req,res,next) => {
   try{
@@ -65,7 +65,7 @@ router.get('/history', async (req,res,next) => {
     }
     const rows = await user_utils.getHistory(user_id);
     const Ids = rows.map(r => r.recipe_id);
-    const recipeIds = [...Ids].reverse().slice(0, 5);
+    const recipeIds = [...Ids].reverse();
     res.status(200).json(recipeIds);
   } catch (err) {
     next(err);
