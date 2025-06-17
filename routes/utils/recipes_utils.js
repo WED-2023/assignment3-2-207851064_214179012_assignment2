@@ -23,7 +23,6 @@ async function getRecipeInformation(recipe_id) {
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
-    console.log(recipe_info.data);
     let aggregatedLikes=aggregateLikes+ await getSpooncularRecipeLikes(id);
     return {
         id: id,
@@ -51,7 +50,6 @@ async function getRecipeDetails(recipe_id) {
 
 async function getRecipesPreview(recipe_ids) {
     let recipes_info = [];
-    console.log(recipe_ids);
     for (let i = 0; i < recipe_ids.length; i++) {
         let recipe = await getRecipeDetails(recipe_ids[i]);
         recipes_info.push(recipe);

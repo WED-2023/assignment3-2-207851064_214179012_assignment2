@@ -135,7 +135,7 @@ router.get('/recipesliked', async (req, res, next) => {
 
     const liked = await user_utils.getLikedRecipes(user_id);
     console.log("Liked recipes for user:", user_id, "are:", liked);
-    res.status(200).json({ liked });
+    res.status(200).json(liked);
   } catch (error) {
     next(error);
   }
