@@ -64,6 +64,7 @@ async function getRecipesComplexSearch(params) {
             cuisine: params.cuisine,
             diet: params.diet,
             intolerances: params.intolerances,
+            addRecipeInformation: true,
             number: params.number || 5, 
             apiKey: process.env.spooncular_apiKey
         }
@@ -72,7 +73,18 @@ async function getRecipesComplexSearch(params) {
 async function getRecipesByQuery(params) {
     let recipes = await getRecipesComplexSearch(params);
     let recipes_list = recipes.data.results;
-    return await getRecipesPreview(recipes_list.map(recipe => recipe.id));   
+    return await Promise.all(recipes_list.map(async (recipe) => {
+        return {
+            id: recipe.id,
+            title: recipe.title,
+            readyInMinutes: recipe.readyInMinutes,
+            image: recipe.image,
+            popularity: recipe.aggregateLikes + await getSpooncularRecipeLikes(recipe.id),
+            vegan: recipe.vegan,
+            vegetarian: recipe.vegetarian,
+            glutenFree: recipe.glutenFree
+        }
+    })); 
 }
 
 async function getRandom(number) {
