@@ -83,6 +83,40 @@ async function postFamilyRecipes(user_id,recipe) {
     VALUES ('${user_id}', ${max_id + 1}, '${recipe.title}', '${recipe.owner}', '${recipe.occasion}', '${recipe.ingredients}', '${recipe.instructions}')`);
 }
 
+async function postMyRecipe(user_id, recipe) {
+    let max_id = await DButils.execQuery(`SELECT MAX(recipe_id) as max_id FROM MyRecipes WHERE user_id = '${user_id}'`);
+    max_id = max_id[0].max_id || 0; // If no recipes exist, start from 0
+
+    // Serialize ingredients and instructions as JSON
+    const ingredients = recipe.ingredients ? JSON.stringify(recipe.ingredients) : '[]';
+    const instructions = recipe.instructions ? JSON.stringify(recipe.instructions) : '[]';
+    const servings = recipe.Servings !== undefined ? recipe.Servings : 1; // Default to 1 if undefined
+
+    await DButils.execQuery(
+        `INSERT INTO MyRecipes (user_id, recipe_id, title, image, readyInMinutes, vegan, vegetarian, glutenFree, ingredients, instructions, Servings)
+        VALUES ('${user_id}', ${max_id + 1}, '${recipe.title}', '${recipe.image}', ${recipe.readyInMinutes}, ${recipe.vegan}, ${recipe.vegetarian}, ${recipe.glutenFree}, 
+        '${ingredients}', '${instructions}', ${servings})`
+    );
+}
+
+async function getMyRecipes(user_id) {
+    const myRecipes = await DButils.execQuery(`SELECT * FROM MyRecipes WHERE user_id = '${user_id}' ORDER BY recipe_id DESC`);
+    return myRecipes.map(recipe => {
+        return {
+            id: recipe.recipe_id,
+            title: recipe.title,
+            image: recipe.image,
+            readyInMinutes: recipe.readyInMinutes,
+            vegan: recipe.vegan,
+            vegetarian: recipe.vegetarian,
+            glutenFree: recipe.glutenFree,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            Servings: recipe.Servings
+        };
+    });
+}
+
 
 
 module.exports = {
@@ -93,5 +127,7 @@ module.exports = {
     likeRecipe,
     getLikedRecipes,
     getFamilyRecipes,
-    postFamilyRecipes
+    postFamilyRecipes,
+    postMyRecipe,
+    getMyRecipes
 };

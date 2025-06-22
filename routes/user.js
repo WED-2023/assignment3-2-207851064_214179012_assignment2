@@ -141,6 +141,41 @@ router.get('/recipesliked', async (req, res, next) => {
   }
 });
 
+/**
+ * This path adds a new recipe to the user's personal recipes
+ */
+router.post('/myRecipes', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    const recipe = req.body;
+    await user_utils.postMyRecipe(user_id, recipe);
+    res.status(201).send("My recipe added successfully");
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * This path retrieves the user's personal recipes
+ */
+router.get('/myRecipes', async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    const myRecipes = await user_utils.getMyRecipes(user_id);
+    res.status(200).json(myRecipes);
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 
 
