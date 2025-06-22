@@ -61,9 +61,6 @@ async function getLikedRecipes(user_id) {
 async function getFamilyRecipes(user_id) {
     const familyRecipes = await DButils.execQuery(`SELECT * FROM recipes where user_id = '${user_id}'
     ORDER BY recipe_id DESC`);
-    if (!familyRecipes || familyRecipes.length === 0) {
-        throw new Error("No family recipes found");
-    }
     return familyRecipes.map(recipe => {
         return {
             recipe_id: recipe.recipe_id,
