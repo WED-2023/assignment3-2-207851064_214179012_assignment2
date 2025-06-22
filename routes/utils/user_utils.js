@@ -90,7 +90,7 @@ async function postMyRecipe(user_id, recipe) {
     const servings = recipe.Servings !== undefined ? recipe.Servings : 1; // Default to 1 if undefined
 
     await DButils.execQuery(
-        `INSERT INTO MyRecipes (user_id, recipe_id, title, image, readyInMinutes, vegan, vegetarian, glutenFree, ingredients, instructions, Servings)
+        `INSERT INTO MyRecipes (user_id, recipe_id, title, image, readyInMinutes, vegan, vegetarian, glutenFree, ingredients, instructions, servings)
         VALUES ('${user_id}', ${max_id + 1}, '${recipe.title}', '${recipe.image}', ${recipe.readyInMinutes}, ${recipe.vegan}, ${recipe.vegetarian}, ${recipe.glutenFree}, 
         '${ingredients}', '${instructions}', ${servings})`
     );
@@ -109,7 +109,7 @@ async function getMyRecipes(user_id) {
             glutenFree: recipe.glutenFree,
             ingredients: recipe.ingredients,
             instructions: recipe.instructions,
-            Servings: recipe.Servings
+            servings: recipe.servings
         };
     });
 }
