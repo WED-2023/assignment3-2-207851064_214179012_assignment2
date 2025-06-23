@@ -21,9 +21,10 @@ tags:
   - name: recipes
     description: Operations on Spoonacular recipes
   - name: users
-    description: User‐specific operations (requires authentication)
+    description: User-specific operations (requires authentication)
 
 paths:
+
   /auth/Register:
     post:
       tags:
@@ -97,6 +98,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /recipes:
+    get:
+      tags:
+        - recipes
+      summary: Root endpoint for recipes service
+      responses:
+        "200":
+          description: Service is up
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "im here"
 
   /recipes/search:
     get:
@@ -237,7 +252,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Bad request Missing or malformed `ids` parameter"
         "402":
           description: Spoonacular quota exceeded (Payment Required)
           content:
@@ -265,11 +285,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
     post:
       tags:
         - users
-      summary: Save a Spoonacular recipe ID to the logged‐in user's favorites
+      summary: Toggle a Spoonacular recipe in the user's favorites
       requestBody:
         required: true
         content:
@@ -281,16 +300,17 @@ paths:
               properties:
                 recipeId:
                   type: integer
-                  description: The Spoonacular recipe ID to mark as favorite
+                  description: The Spoonacular recipe ID to toggle
             example:
               recipeId: 716429
       responses:
         "200":
-          description: Recipe successfully saved as favorite
+          description: Recipe favorite status toggled successfully
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: '#/components/schemas/GenericSuccessResponse'
+                type: string
+                example: "Recipe favorite status updated"
         "401":
           description: Unauthorized (user not logged in)
           content:
@@ -302,16 +322,16 @@ paths:
     get:
       tags:
         - users
-      summary: Get the last three Spoonacular recipe IDs viewed by the logged‐in user
+      summary: Get the last three Spoonacular recipes viewed by the logged‐in user
       responses:
         "200":
-          description: Array of Spoonacular recipe IDs from viewing history
+          description: Array of history entries
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: integer
+                  $ref: '#/components/schemas/HistoryEntry'
         "401":
           description: Unauthorized (user not logged in)
           content:
@@ -333,11 +353,12 @@ paths:
           description: The Spoonacular recipe ID to like/unlike
       responses:
         "200":
-          description: Spoonacular recipe like status updated successfully
+          description: Recipe like status updated successfully
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: '#/components/schemas/GenericSuccessResponse'
+                type: string
+                example: "Recipe like status updated"
         "401":
           description: Unauthorized (user not logged in)
           content:
@@ -345,6 +366,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /users/recipesliked:
+    get:
+      tags:
+        - users
+      summary: Get Spoonacular recipe IDs liked by the logged‐in user
+      responses:
+        "200":
+          description: Array of liked Spoonacular recipe IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /users/familyRecipes:
     get:
@@ -366,7 +407,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
     post:
       tags:
         - users
@@ -390,7 +430,7 @@ paths:
                 5) מגישים חם בבוקר עם לחם טרי.
       responses:
         "201":
-          description: Family recipe added successfully (plain text)
+          description: Family recipe added successfully
           content:
             text/plain:
               schema:
@@ -409,8 +449,82 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /users/myRecipes:
+    get:
+      tags:
+        - users
+      summary: Get personal recipes saved by the logged‐in user
+      responses:
+        "200":
+          description: Array of personal recipe objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyRecipe'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - users
+      summary: Add a new recipe to the user's personal recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMyRecipe'
+            example:
+              title: "Grandma's Apple Pie"
+              image: "https://example.com/images/pie.jpg"
+              readyInMinutes: 60
+              vegan: false
+              vegetarian: false
+              glutenFree: false
+              ingredients:
+                - id: 1
+                  name: "Apple"
+                  amount: 3
+                  unit: "pieces"
+                - id: 2
+                  name: "Flour"
+                  amount: 2
+                  unit: "cups"
+              instructions:
+                - number: 1
+                  step: "Preheat oven to 180°C"
+                - number: 2
+                  step: "Mix sliced apples with sugar"
+              servings: 8
+      responses:
+        "201":
+          description: Personal recipe added successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "My recipe added successfully"
+        "400":
+          description: Bad request (missing or invalid fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
+
     UserRegistration:
       type: object
       required:
@@ -457,6 +571,9 @@ components:
           description: The unique Spoonacular recipe ID
         title:
           type: string
+        readyInMinutes:
+          type: integer
+          description: Time (in minutes) to prepare and cook the recipe
         image:
           type: string
           format: uri
@@ -567,6 +684,111 @@ components:
         instructions:
           type: string
           description: Full preparation instructions
+
+    NewMyRecipe:
+      type: object
+      required:
+        - title
+        - image
+        - readyInMinutes
+        - vegan
+        - vegetarian
+        - glutenFree
+        - ingredients
+        - instructions
+      properties:
+        title:
+          type: string
+        image:
+          type: string
+          format: uri
+        readyInMinutes:
+          type: integer
+        vegan:
+          type: boolean
+        vegetarian:
+          type: boolean
+        glutenFree:
+          type: boolean
+        ingredients:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              amount:
+                type: number
+              unit:
+                type: string
+        instructions:
+          type: array
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+              step:
+                type: string
+        servings:
+          type: integer
+          description: Number of servings (optional; defaults to 1)
+
+    MyRecipe:
+      type: object
+      properties:
+        recipe_id:
+          type: integer
+        title:
+          type: string
+        image:
+          type: string
+          format: uri
+        readyInMinutes:
+          type: integer
+        vegan:
+          type: boolean
+        vegetarian:
+          type: boolean
+        glutenFree:
+          type: boolean
+        servings:
+          type: integer
+        ingredients:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              amount:
+                type: number
+              unit:
+                type: string
+        instructions:
+          type: array
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+              step:
+                type: string
+
+    HistoryEntry:
+      type: object
+      properties:
+        recipe_id:
+          type: integer
+          description: Spoonacular recipe ID viewed
+        viewed_at:
+          type: string
+          format: date-time
+          description: Timestamp when the recipe was viewed
 
     GenericSuccessResponse:
       type: object

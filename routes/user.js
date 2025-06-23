@@ -170,6 +170,7 @@ router.get('/myRecipes', async (req, res, next) => {
     }
 
     const myRecipes = await user_utils.getMyRecipes(user_id);
+    console.log("My recipes for user:", user_id, "are:", myRecipes);
     res.status(200).json(myRecipes);
   } catch (err) {
     next(err);
