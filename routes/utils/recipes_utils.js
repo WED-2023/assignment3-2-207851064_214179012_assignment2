@@ -99,17 +99,18 @@ async function getRandom(number) {
 async function getRandomRecipes(number) {
     let random_recipes = await getRandom(number);
     let recipes_list = random_recipes.data.recipes;
-    return recipes_list.map(recipe => {
+    return await Promise.all(recipes_list.map(async (recipe) => {
         return {
             id: recipe.id,
             title: recipe.title,
+            readyInMinutes: recipe.readyInMinutes,
             image: recipe.image,
-            popularity: recipe.aggregateLikes,
+            popularity: recipe.aggregateLikes + await getSpooncularRecipeLikes(recipe.id),
             vegan: recipe.vegan,
             vegetarian: recipe.vegetarian,
             glutenFree: recipe.glutenFree
         }
-    });
+    }));
 }
 
 // internal services - using the db
